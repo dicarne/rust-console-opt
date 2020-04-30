@@ -3,24 +3,25 @@ use std::env;
 
 /// # Opt
 /// main struct.
-/// 
+///
 /// ### normal usage:
 /// ```
-/// use rust_console_opt::opt::Opt;
+/// use rust_command_opt::opt::Opt;
 ///
 /// fn main() {
 ///     let opt = Opt::init();
-///     let value = opt.get_opt_shortt("-a").one();
+///     if let Some(value) = opt.get_opt_short("-a") {
+///         println!("{}", value.one());
+///     }
 /// }
-/// 
+///
 /// ```
 pub struct Opt {
     pub opts: HashMap<String, OptValue>,
 }
 
 impl Opt {
-
-    /// Init with console args.
+    /// Init with command args.
     pub fn init() -> Opt {
         let mut args: Vec<String> = env::args().collect();
         args.remove(0);
@@ -28,7 +29,7 @@ impl Opt {
     }
 
     /// Init with you custom args.
-    /// (always is used in test)
+    /// (Usually used in test)
     pub fn with(args: Vec<String>) -> Opt {
         let mut map: HashMap<String, OptValue> = HashMap::default();
         let mut last_opt = "".to_string();
@@ -90,12 +91,16 @@ impl Opt {
         Opt { opts: map }
     }
 
-    /// basic get opt method.
-    /// ### usage: 
+    /// Basic get opt method.
+    /// ### usage:
     /// ```
+    /// use rust_command_opt::opt::Opt;
+    ///
     /// let opt = Opt::init();
-    /// let value = opt.get_opt(opt.short("-a")).except("you must input -a").one();
-    /// 
+    /// if let Some(value) = opt.get_opt(Opt::one("-a")) {
+    ///     println!("{}", value.one());
+    /// }
+    ///
     /// ```
     pub fn get_opt(&self, op_name: OptOption) -> Option<OptValue> {
         match op_name {
@@ -120,6 +125,8 @@ impl Opt {
     /// Only use short option, and have a default value.
     /// ### usage
     /// ```
+    /// use rust_command_opt::opt::Opt;
+    ///
     /// let opt = Opt::init();
     /// let value = opt.get_opt_short_with_default("-a", "default_value").one();
     /// ```
@@ -138,6 +145,8 @@ impl Opt {
     /// Use short and full option, and have a default value.
     /// ### usage
     /// ```
+    /// use rust_command_opt::opt::Opt;
+    ///
     /// let opt = Opt::init();
     /// let value = opt.get_opt_normal_with_default("-a", "--all", "default_value").one();
     /// ```
@@ -155,8 +164,12 @@ impl Opt {
 
     /// Only use short option.
     /// ```
+    /// use rust_command_opt::opt::Opt;
+    ///
     /// let opt = Opt::init();
-    /// let value = opt.get_opt_short("-a").except("you must input -a").one();
+    /// if let Some(value) = opt.get_opt_short("-a") {
+    ///     println!("{}", value.one());
+    /// }
     /// ```
     pub fn get_opt_short(&self, name: &str) -> Option<OptValue> {
         self.get_opt(OptOption::One(name))
@@ -164,8 +177,12 @@ impl Opt {
 
     /// Only use short option.
     /// ```
+    /// use rust_command_opt::opt::Opt;
+    ///
     /// let opt = Opt::init();
-    /// let value = opt.get_opt_normal("-a", "--all").except("you must input -a or --all").one();
+    /// if let Some(value) = opt.get_opt_normal("-a", "--all") {
+    ///     println!("{}", value.one());
+    /// }
     /// ```
     pub fn get_opt_normal(&self, short: &str, long: &str) -> Option<OptValue> {
         self.get_opt(Opt::normal(short, long))
@@ -183,16 +200,16 @@ impl Opt {
 }
 
 /// Contains value
-/// 
+///
 /// ### Many
 /// Many value in one option.
-/// 
+///
 /// **like:**
 /// `you_program -p a b c d`
-/// 
+///
 /// ### One
 /// Only one value in one option.
-/// 
+///
 /// **like:**
 /// `you_program -p a`
 #[derive(Clone)]
@@ -202,9 +219,8 @@ pub enum OptValue {
 }
 
 impl OptValue {
-
     /// Get one value in `OptValue`.
-    /// 
+    ///
     /// if only one value in `OptValue`, you get it.
     /// or you will get the first.
     pub fn one(&self) -> String {
@@ -215,7 +231,7 @@ impl OptValue {
     }
 
     /// Get many value in `OptValue`.
-    /// 
+    ///
     /// if only one value in `OptValue`, you will also get a vector.
     /// or you will get the vector.
     pub fn many(&self) -> Vec<String> {
